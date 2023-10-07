@@ -1,3 +1,5 @@
+import database
 
 if __name__ == '__main__':
-    print('PyCharm')
+    database.startup_db_client()
+    database.shutdown_db_client()
