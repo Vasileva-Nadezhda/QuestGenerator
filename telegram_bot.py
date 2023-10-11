@@ -1,10 +1,23 @@
+import threading
+
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, \
+    CallbackQueryHandler
 from dotenv import dotenv_values
+
+import database
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello! Write something to start.")
+
+
+def update_quests():
+    t = threading.Timer(60, update_quests)
+    t.daemon = True
+    t.start()
+    database.update_quests()
+    print('ddd')
 
 
 async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -22,13 +35,20 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await query.answer()
     if query.data == 'get picture':
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('res/bhs_logo.png', 'rb'))
+    elif query.data == 'update user':
+        database.update_user()
+    elif query.data == 'update progress':
+        database.update_progress()
     await query.edit_message_text(text=f"The command is executed: {query.data}\nWrite something to continue.")
 
 
 def run():
+    client = database.startup_db_client()
     config = dotenv_values(".env")
     application = ApplicationBuilder().token(config["BOT_TOKEN"]).build()
     application.add_handler(CommandHandler('start', start))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), answer))
     application.add_handler(CallbackQueryHandler(button))
+    update_quests()
     application.run_polling()
+    database.shutdown_db_client(client)
