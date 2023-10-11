@@ -1,3 +1,4 @@
+import telegram_bot
 
 if __name__ == '__main__':
-    print('PyCharm')
+    telegram_bot.run()
