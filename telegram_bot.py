@@ -1,11 +1,15 @@
 import threading
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputFile
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, \
     CallbackQueryHandler
 from dotenv import dotenv_values
 
 import database
+import picture_generator
+
+config = dotenv_values(".env")
+client = database.startup_db_client()
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -34,7 +38,9 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
     if query.data == 'get picture':
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('res/bhs_logo.png', 'rb'))
+        await context.bot.send_photo(chat_id=update.effective_chat.id,
+                                     photo=InputFile(picture_generator.create_picture(
+                                         client[config["DB_NAME"]]['Quests'].find())))
     elif query.data == 'update user':
         database.update_user()
     elif query.data == 'update progress':
@@ -43,8 +49,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def run():
-    client = database.startup_db_client()
-    config = dotenv_values(".env")
     application = ApplicationBuilder().token(config["BOT_TOKEN"]).build()
     application.add_handler(CommandHandler('start', start))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), answer))
