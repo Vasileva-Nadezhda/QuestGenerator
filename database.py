@@ -60,7 +60,7 @@ def generate_quests(user: models.User, quest_type, number):
             else:
                 steps_ratio = user.wins_per_day / user.games_per_day
                 steps = randint(ceil(5 * steps_ratio), ceil(10 * steps_ratio))
-            date = datetime.datetime.now() + datetime.timedelta(seconds=30)
+            date = datetime.datetime.now() + datetime.timedelta(weeks=1)
             quests.append(models.Quest(quests_descriptions[number_of_quest]["title"],
                                        quests_descriptions[number_of_quest]["description"],
                                        reward, date,
@@ -83,7 +83,7 @@ def generate_quests(user: models.User, quest_type, number):
             else:
                 steps_ratio = user.wins_per_day / user.games_per_day
                 steps = randint(ceil(3 * steps_ratio), ceil(5 * steps_ratio))
-            date = datetime.datetime.now() + datetime.timedelta(seconds=30)
+            date = datetime.datetime.now() + datetime.timedelta(days=1)
             quests.append(models.Quest(quests_descriptions[number_of_quest]["title"],
                                        quests_descriptions[number_of_quest]["description"],
                                        reward, date, "daily",
