@@ -21,7 +21,7 @@ def update_quests():
     t.daemon = True
     t.start()
     database.update_quests()
-    print('ddd')
+    print('Quests were updated.')
 
 
 async def answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
